@@ -1,0 +1,409 @@
+-- Startup
+vim.cmd [[packadd packer.nvim]]
+return require('packer').startup(
+  function()
+
+    -- Packer itself
+    use {
+      'wbthomason/packer.nvim',
+      auto_clean = true,
+      compile_on_sync = true,
+      auto_reload_compiled = true,
+      display = {
+        non_interactive = false,
+        open_fn         = nil,
+        open_cmd        = '50vnew \\[packer\\]',
+        working_sym     = '',
+        error_sym       = '✗',
+        done_sym        = '✓',
+        removed_sym     = '-',
+        moved_sym       = '→',
+        header_sym      = '━',
+        show_all_info   = false,
+        prompt_border   = 'single',
+        keybindings     = {
+          quit = 'q',
+          toggle_info = '<CR>',
+          diff = 'd',
+          prompt_revert = 'r',
+        },
+      },
+    }
+
+    -- Use a protected call so we don't error out on first use
+    local status_ok, packer = pcall(require, "packer")
+    if not status_ok then
+      return
+    end
+
+    -- Packer Popup Window
+    local status_ok, packer = pcall(require, "packer")
+    packer.init {
+      display = {
+        open_fn = function()
+          return require("packer.util").float({ border = "single" })
+        end,
+      },
+    }
+
+    -- Misc
+    require "plugins.misc"
+
+    -- for Latex files
+    use {
+      'lervag/vimtex',
+      opt = true,
+      ft  = { 'tex' },
+    }
+
+    -- taylor Treesitter
+    use {
+      'nvim-treesitter/playground',
+      opt = true,
+      cmd = { 'TSHighlightCapturesUnderCursor' },
+    }
+
+    -- Run Commands in qf
+    use {
+      'skywind3000/asyncrun.vim',
+      opt = true,
+      ft = { 'c', 'cpp', 'sh', 'python', 'go', 'javascript', 'typescript', 'julia', 'rust', 'haskell', 'arduino' },
+      cmd = { 'AsyncRun' }
+    }
+
+    -- Fuzzy Picker
+    use({
+      'nvim-telescope/telescope.nvim',
+      requires = {
+        'nvim-lua/plenary.nvim',
+      },
+      config = function()
+        require "plugins.telescope"
+      end
+    })
+
+    -- Show Problems in Code
+    use {
+      'folke/trouble.nvim',
+      opt = true,
+      cmd = { 'TroubleToggle' },
+      config = function()
+        require("trouble").setup {
+          position = "bottom",
+          height = 20,
+          width = 50,
+          icons = true,
+          mode = "workspace_diagnostics",
+          fold_open = "",
+          fold_closed = "",
+          group = true,
+          padding = true,
+          indent_lines = true,
+          auto_close = false,
+          auto_preview = false,
+          auto_fold = false,
+          auto_open = false,
+          signs = {
+            error = "",
+            warning = "",
+            hint = "",
+            information = "",
+            other = ""
+          },
+        }
+      end
+    }
+
+    -- Code Complete
+    use {
+      'hrsh7th/nvim-cmp',
+      config = function()
+        require "plugins.cmp"
+      end
+    }
+
+    -- Smart Commenting
+    use {
+      'numToStr/Comment.nvim',
+      config = function()
+        require "plugins.comment"
+      end
+    }
+
+    -- Color Preview
+    use {
+      'norcalli/nvim-colorizer.lua',
+      event = 'BufReadPre',
+      config = function()
+        require 'colorizer'.setup()
+      end
+    }
+
+    -- File Nav
+    use {
+      'kyazdani42/nvim-tree.lua',
+      cmd = { 'NvimTreeToggle' },
+      opt = true,
+      config = function()
+        require "plugins.nvim-tree"
+      end
+    }
+
+    -- Autocomplete Pairs
+    use {
+      'windwp/nvim-autopairs',
+      event = 'InsertEnter',
+      opt = true,
+      config = function()
+        require "plugins.pairs"
+      end
+    }
+
+    -- Unix helper
+    use {
+      'tpope/vim-eunuch',
+      opt = true,
+      cmd = { 'Delete', 'Unlink', 'Move', 'Rename', 'Chmod', 'Mkdir', 'Cfind', 'Clocate', 'SudoWrite', 'SudoEdit' }
+    }
+
+    -- Treesitter Abstraction Layer
+    use {
+      'nvim-treesitter/nvim-treesitter',
+      run = ':TSUpdate',
+      config = function()
+        require "plugins.treesitter"
+      end
+    }
+
+    -- Nice search
+    use {
+      'rktjmp/highlight-current-n.nvim',
+      config = function()
+        require("highlight_current_n").setup({
+          highlight_group = "Visual"
+        })
+      end
+    }
+
+    -- Buffers & tabs
+    use {
+      'akinsho/bufferline.nvim',
+      config = function()
+        require "plugins.bufferline"
+      end
+    }
+
+    -- Format QuickFix
+    use {
+      'https://gitlab.com/yorickpeterse/nvim-pqf.git',
+      config = function()
+        require "plugins.pqf"
+      end
+    }
+
+    -- Delete Buffer
+    use {
+      'famiu/bufdelete.nvim',
+      cmd = { 'Bdelete', 'Bwipeout' },
+      opt = true,
+    }
+
+    -- CP Helper
+    use {
+      'xeluxee/competitest.nvim',
+      cmd = { 'CompetiTestAdd', 'CompetiTestEdit', 'CompetiTestDelete', 'CompetiTestRun', 'CompetiTestReceive',
+        'CompetiTestConvert', 'CompetiTestRunNE' },
+      opt = true,
+      config = function()
+        require 'competitest'.setup()
+      end
+    }
+
+    -- Statusbar
+    use {
+      'windwp/windline.nvim',
+      config = function()
+        require "plugins.statusline"
+      end
+    }
+
+    -- Neovim language Server
+    use {
+      'neovim/nvim-lspconfig',
+      config = function()
+        require "plugins.lsp"
+      end
+    }
+
+    -- Nice UI
+    -- use {
+    --   'stevearc/dressing.nvim',
+    --   config = function()
+    --     require "plugins.ui"
+    --   end
+    -- }
+
+    -- Cool notifications
+    use {
+      'rcarriga/nvim-notify',
+      config = function()
+        require "plugins.notify"
+      end
+    }
+
+    -- UndoTree
+    use {
+      'mbbill/undotree',
+      cmd = { 'UndotreeToggle' },
+      opt = true,
+    }
+
+    -- kinda like bspwm moncle
+    use {
+      'troydm/zoomwintab.vim',
+      cmd = { 'ZoomWinTabToggle' },
+      opt = true,
+    }
+
+    -- icons
+    use {
+      'kyazdani42/nvim-web-devicons',
+      config = function()
+        require "plugins.icons"
+      end
+    }
+
+    -- Git
+    use {
+      'lewis6991/gitsigns.nvim',
+      config = function()
+        require "plugins.git"
+      end
+    }
+
+    -- Code Outline
+    use {
+      'simrat39/symbols-outline.nvim',
+      cmd = { "SymbolsOutline" },
+      opt = true,
+      config = function()
+        require "plugins.symbols-outline"
+      end
+    }
+
+    -- Substitute Text
+    use({
+      "gbprod/substitute.nvim",
+      opt = true,
+      config = function()
+        require("substitute").setup()
+      end
+    })
+
+    -- Indent Guides
+    use {
+      "lukas-reineke/indent-blankline.nvim",
+      config = function()
+        require("indent_blankline").setup({
+          show_current_context = true,
+          show_current_context_start = true,
+        })
+      end
+    }
+
+    -- Highlight Same Words
+    use {
+      'RRethy/vim-illuminate',
+      config = function()
+        require "plugins.illuminate"
+      end
+    }
+
+    -- Colorscheme
+    -- use {
+    'folke/tokyonight.nvim',
+     config = function()
+         require "plugins.theme"
+       end
+    }
+
+    -- Dim unused
+    use {
+      "zbirenbaum/neodim",
+      config = function()
+        require("neodim").setup({
+          alpha = 0.40,
+          blend_color = "#000000",
+          update_in_insert = {
+            enable = false,
+            delay = 100,
+          },
+          hide = {
+            virtual_text = false,
+            signs = false,
+            underline = true,
+          }
+        })
+      end
+    }
+
+        use {
+      'barrett-ruth/import-cost.nvim',
+      run = 'sh install.sh yarn',
+      config = function()
+        require('import-cost').setup()
+      end
+    }
+
+
+    -- Winbar  
+    use {
+    "utilyre/barbecue.nvim",
+      requires = {
+      "neovim/nvim-lspconfig",
+      "smiteshp/nvim-navic",
+      "kyazdani42/nvim-web-devicons", 
+      },
+      config = function()
+        require "plugins.location"
+      end,
+    }
+
+    use {
+      "catppuccin/nvim", 
+      as = "catppuccin", 
+      config = function ()
+        require "plugins.cappuccino"
+      end
+    }
+
+    -- Telescope
+    use "nvim-telescope/telescope-file-browser.nvim" -- File Browser
+    use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'make' } -- Telescope FZF marriage
+
+    -- Cmp
+    use 'hrsh7th/cmp-nvim-lsp' -- cmp lsp source
+    use 'dcampos/nvim-snippy' -- snippet manager
+    use 'dcampos/cmp-snippy' -- snippet for cmp
+    use 'onsails/lspkind-nvim' -- icons for menu
+    use 'honza/vim-snippets' -- Snippets
+    use 'hrsh7th/cmp-path' -- Cmp path source
+
+    -- Fix
+    use 'lewis6991/impatient.nvim' -- Start Quickly
+    use "nathom/filetype.nvim" -- Filetype Faster
+
+    -- Utils
+    use 'nishigori/increment-activator' -- good enhance
+    use 'voldikss/vim-floaterm' -- Floating Terminal
+    use 'ThePrimeagen/harpoon' -- Project File util
+    use 'wellle/targets.vim' -- Extra text objects
+    use 'nanotee/zoxide.vim' -- Zoxide
+    use 'jremmen/vim-ripgrep' -- Ripgrep
+    use 'sbdchd/neoformat' -- Format
+
+    -- Lsp, Treesitter
+    use "SmiteshP/nvim-navic" -- Code Location
+    use 'nvim-treesitter/nvim-treesitter-textobjects' -- Text Objects
+
+  end)
